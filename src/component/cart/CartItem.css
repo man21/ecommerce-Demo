@@ -1,0 +1,25 @@
+.cart-item{
+    display: inline-block;
+    margin: 20px 10px;
+    border-style: solid;
+    border-width: thin;
+  }
+  
+  .cart-item .right-block{
+    padding: 0 20px;
+  }
+  
+  .cart-item-actions {
+    margin-top: 20px;
+  }
+  
+  .actions-icons{
+    height:25px;
+    width:25px;
+    margin-right: 10px;
+  }
+  
+  .actions-icons:hover{
+    cursor: pointer;
+  }
+  
