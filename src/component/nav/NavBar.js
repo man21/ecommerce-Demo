@@ -8,25 +8,22 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
-import AppBar from '@material-ui/core/AppBar';
+import AppBar from "@material-ui/core/AppBar";
 
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
+import Toolbar from "@material-ui/core/Toolbar";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
 import Typography from "@material-ui/core/Typography";
 
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
-
-import "../Products/ProductItem.css"
+import "../Products/ProductItem.css";
 function NavBar(props) {
-
-   
+  const dispatch = useDispatch();
 
   const wishList = useSelector((state) => state.wishList);
 
   const cart = useSelector((state) => state.cart);
-
 
   // const { products, setProducts } = props;
 
@@ -34,11 +31,9 @@ function NavBar(props) {
 
   const [openAddProduct, setOpenAddProduct] = useState(false);
 
-
   const [openWishList, setOpenWishList] = useState(false);
 
   const [openCart, setOpenCart] = useState(false);
-
 
   // const [type, setType] = useState(null)
 
@@ -47,7 +42,6 @@ function NavBar(props) {
   //   openWishlist: false,
   //   openCart: false
   // });
-
 
   const [formData, setFormData] = useState({
     title: "",
@@ -70,7 +64,6 @@ function NavBar(props) {
   const handleOpenWishListClose = () => {
     setOpenWishList(false);
   };
-
 
   const handleOpenCartClickOpen = () => {
     setOpenCart(true);
@@ -120,45 +113,52 @@ function NavBar(props) {
     setFormData(tempFormData);
   };
 
-
   const handleIncreaseQuantity = (id) => {
 
-    console.log("HANDLE INCREASE QUANTITY ************")
-    // alert("Not working Now")
-    // const index = products.findIndex((x) => x.id === id);
-    // var dummy = [...products];
-    // dummy[index] = {
-    //   ...dummy[index],
-    //   quantity: dummy[index].quantity + 1,
-    //   amount: dummy[index].amount + 10,
-    // };
-    // setProducts(dummy);
+    const checkProductInCart = cart.data.filter((x) => x.id === id)
+
+    dispatch({type: 'UPDATE_ONE_CART', payload: {...checkProductInCart[0], quantity: checkProductInCart[0].quantity+1}})
+
+    
   };
 
   const handleDecreaseQuantity = (id) => {
+    const checkProductInCart = cart.data.filter((x) => x.id === id)[0]
 
-    console.log("HANDLE DECREASE QUANTITY ************")
-
-    const index = products.findIndex((x) => x.id === id);
-    var dummy = [...products];
-    if (dummy[index].quantity === 1) return;
-    else {
-      dummy[index] = {
-        ...dummy[index],
-        quantity: dummy[index].quantity - 1,
-        amount: dummy[index].amount - 10,
-      };
-      // setProducts(dummy);
+    if(checkProductInCart && checkProductInCart.quantity ===1){
+      dispatch({type: 'UPDATE_ONE_CART', payload: {...checkProductInCart, quantity: checkProductInCart.quantity-1}})
+      dispatch({type: 'DELETE_CART', payload: {...checkProductInCart}})
+    }else{
+      dispatch({type: 'UPDATE_ONE_CART', payload: {...checkProductInCart, quantity: checkProductInCart.quantity-1}})
     }
+
   };
 
   const handleDeleteItem = (id) => {
-    console.log("HANDLE DELETE QUANTITY ************")
 
-    const newArr = products.filter((x) => x.id !== id);
-    // setProducts(newArr);
+
+    const checkProductInCart = cart.data.filter((x) => x.id === id)[0]
+
+    if(checkProductInCart)
+      dispatch({type: 'DELETE_CART', payload: {...checkProductInCart}})
+
   };
 
+  const handleWishList =(id)=>{
+
+    var dataAvailble = wishList.data.findIndex(item => item.id === id)
+
+    if(dataAvailble === -1){
+      const newDATA = cart.data.filter((x) => x.id === id);
+      dispatch({type: 'ADD_WISHLIST', payload: newDATA[0]})
+    }else{
+
+      dispatch({type: 'DELETE_WISHLIST', payload: {id: id}})
+
+    }
+
+    
+  }
 
   return (
     <div>
@@ -174,10 +174,10 @@ function NavBar(props) {
           Add New Product
         </Button>
 
-        <div style={{ marginRight: "20px", color: "#ffffff" }}>
+        {/* <div style={{ marginRight: "20px", color: "#ffffff" }}>
           <b style={{color: "#fff000"}}>Total Amount:</b>{" $  "}
           {products.reduce((previous, current) => previous + current.price.current.value, 0)}
-        </div>
+        </div> */}
 
         <div style={styles.ncartIconContainerav}>
           <img
@@ -198,9 +198,7 @@ function NavBar(props) {
             src="https://image.flaticon.com/icons/png/512/1170/1170576.png"
             onClick={handleOpenCartClickOpen}
           />
-          <span style={styles.cartCount}>
-            {cart.data.length}
-          </span>
+          <span style={styles.cartCount}>{cart.data.reduce((a,b)=> a+b.quantity, 0)}</span>
         </div>
       </div>
 
@@ -262,26 +260,63 @@ function NavBar(props) {
           aria-labelledby="customized-dialog-title"
           open={openWishList}
         >
-
           <AppBar className={styles.appBar}>
             <Toolbar>
-              <IconButton edge="start" color="inherit" onClick={handleOpenWishListClose} aria-label="close">
+              <IconButton
+                edge="start"
+                color="inherit"
+                onClick={handleOpenWishListClose}
+                aria-label="close"
+              >
                 <CloseIcon />
               </IconButton>
-              <Typography variant="h6" className={styles.title}>wishList</Typography>
-              <Button autoFocus color="inherit" onClick={handleOpenWishListClose}>save</Button>
+              <Typography variant="h6" className={styles.title}>
+                wishList
+              </Typography>
+              <Button
+                autoFocus
+                color="inherit"
+                onClick={handleOpenWishListClose}
+              >
+                save
+              </Button>
 
-              <Typography variant="h6" style={{marginRight:"1px"}} className={styles.title}><b style={{color:"#fff000"}}>Total Amount: </b> USD {wishList.data.reduce((a,b) =>a+b.price.current.value, 0)} </Typography>
-
+              <Typography
+                variant="h6"
+                style={{ marginRight: "1px" }}
+                className={styles.title}
+              >
+                <b style={{ color: "#fff000" }}>Total Amount: </b>{" "}
+                {wishList.data.reduce((a, b) => a + b.price.current.text, "")}{" "}
+              </Typography>
             </Toolbar>
           </AppBar>
-          <DialogContent dividers style= {{marginTop: "50px"}}>
-            {
-              wishList.data.length > 0 ?
-                wishList.data.map(list => 
-                <div  key={list.id} style={{display: 'inline-block',margin: '20px 10px',borderStyle: 'solid',borderWidth: 'thin'}}>
+          <DialogContent dividers style={{ marginTop: "50px" }}>
+            {wishList.data.length > 0 ? (
+              wishList.data.map((list) => (
+                <div
+                  key={list.id}
+                  style={{
+                    display: "inline-block",
+                    margin: "20px 10px",
+                    borderStyle: "solid",
+                    borderWidth: "thin",
+                  }}
+                >
                   <div>
-                    <img style={{height: 110,width: 110,borderRadius: 4,alignItems: 'right',backgroundColor: " #ccc",margin: '5px auto',display: 'block',}} src={`https://${list.imageUrl}`} />
+                    <img
+                      alt="productImage"
+                      style={{
+                        height: 110,
+                        width: 110,
+                        borderRadius: 4,
+                        alignItems: "right",
+                        backgroundColor: " #ccc",
+                        margin: "5px auto",
+                        display: "block",
+                      }}
+                      src={`https://${list.imageUrl}`}
+                    />
                   </div>
 
                   <div className="right-block">
@@ -301,7 +336,23 @@ function NavBar(props) {
                         src="https://image.flaticon.com/icons/png/512/4379/4379578.png"
                       />
 
-                      <img
+                      <Button
+                        className="action-icons"
+                        style={{ margin: "15px 15px" }}
+                        variant="contained"
+                        color="secondary"
+                        onClick={() =>
+                          dispatch({
+                            type: "DELETE_WISHLIST",
+                            payload: { id: list.id },
+                          })
+                        }
+                      >
+                        {" "}
+                        Remove from WishList
+                      </Button>
+
+                      {/* <img
                         className="action-icons"
                         alt="favourite"
                         style={{
@@ -314,45 +365,83 @@ function NavBar(props) {
                             ? "https://image.flaticon.com/icons/png/512/4379/4379680.png"
                             : "https://image.flaticon.com/icons/png/512/4379/4379561.png"
                         }
-                      />
+                      /> */}
                     </div>
                   </div>
-                </div>) : <div>No RESULT</div>
-            }
+                </div>
+              ))
+            ) : (
+              <div>No RESULT</div>
+            )}
           </DialogContent>
-         
         </Dialog>
       </div>
-   
 
-    {/* Display CART */}
-    <div>
+      {/* Display CART */}
+      <div>
         <Dialog
           fullScreen
           onClose={handleOpenCartListClose}
           aria-labelledby="customized-dialog-title"
           open={openCart}
         >
-
           <AppBar className={styles.appBar}>
             <Toolbar>
-              <IconButton edge="start" color="inherit" onClick={handleOpenCartListClose} aria-label="close">
+              <IconButton
+                edge="start"
+                color="inherit"
+                onClick={handleOpenCartListClose}
+                aria-label="close"
+              >
                 <CloseIcon />
               </IconButton>
-              <Typography variant="h6" className={styles.title}>Cart</Typography>
-              <Button autoFocus color="inherit" onClick={handleOpenCartListClose}>save</Button>
+              <Typography variant="h6" className={styles.title}>
+                Cart
+              </Typography>
+              <Button
+                autoFocus
+                color="inherit"
+                onClick={handleOpenCartListClose}
+              >
+                save
+              </Button>
 
-              <Typography variant="h6" style={{marginRight:"1px"}} className={styles.title}><b style={{color:"#fff000"}}>Total Amount: </b> USD {cart.data.reduce((a,b) =>a+b.price.current.value, 0)} </Typography>
-
+              <Typography
+                variant="h6"
+                style={{ marginRight: "1px" }}
+                className={styles.title}
+              >
+                <b style={{ color: "#fff000" }}>Total Amount: </b> USD{" "}
+                {cart.data.reduce((a, b) => a + b.price.current.value, 0)}{" "}
+              </Typography>
             </Toolbar>
           </AppBar>
-          <DialogContent dividers style= {{marginTop: "50px"}}>
-            {
-              cart.data.length > 0 ?
-                cart.data.map(list => 
-                <div key={list.id} style={{display: 'inline-block',margin: '20px 10px',borderStyle: 'solid',borderWidth: 'thin'}}>
+          <DialogContent dividers style={{ marginTop: "50px" }}>
+            {cart.data.length > 0 ? (
+              cart.data.map((list) => (
+                <div
+                  key={list.id}
+                  style={{
+                    display: "inline-block",
+                    margin: "20px 10px",
+                    borderStyle: "solid",
+                    borderWidth: "thin",
+                  }}
+                >
                   <div>
-                    <img style={{height: 110,width: 110,borderRadius: 4,alignItems: 'right',backgroundColor: " #ccc",margin: '5px auto',display: 'block',}} src={`https://${list.imageUrl}`} />
+                    <img
+                    alt="productImage"
+                      style={{
+                        height: 110,
+                        width: 110,
+                        borderRadius: 4,
+                        alignItems: "right",
+                        backgroundColor: " #ccc",
+                        margin: "5px auto",
+                        display: "block",
+                      }}
+                      src={`https://${list.imageUrl}`}
+                    />
                   </div>
 
                   <div className="right-block">
@@ -365,35 +454,45 @@ function NavBar(props) {
                     </div>
 
                     <div>
-                      <b>Qty:</b> 1
+                      <b>Qty:</b> {list.quantity}
                     </div>
 
                     <div className="cart-item-actions">
-
                       <img
                         className="action-icons"
                         alt="increase"
-                        style={{height: '24px', width: '24px', padding: "5px 5px"}}
+                        style={{
+                          height: "24px",
+                          width: "24px",
+                          padding: "5px 5px",
+                        }}
                         src="https://image.flaticon.com/icons/png/512/992/992651.png"
-                        onClick={handleIncreaseQuantity(list.id)}
+                        onClick={()=>handleIncreaseQuantity(list.id)}
                       />
                       <img
                         className="action-icons"
                         alt="decrease"
-                        style={{height: '24px', width: '24px', padding: "5px 5px"}}
+                        style={{
+                          height: "24px",
+                          width: "24px",
+                          padding: "5px 5px",
+                        }}
                         src="https://image.flaticon.com/icons/png/512/1828/1828906.png"
-                        onClick={handleDecreaseQuantity(list.id)}
+                        onClick={()=>handleDecreaseQuantity(list.id)}
                       />
                       <img
                         className="action-icons"
                         alt="delete"
-                        style={{height: '24px', width: '24px', padding: "5px 5px"}}
+                        style={{
+                          height: "24px",
+                          width: "24px",
+                          padding: "5px 5px",
+                        }}
                         src="https://image.flaticon.com/icons/png/512/3096/3096687.png"
-                        onClick={handleDeleteItem(list.id)}
+                        onClick={()=>handleDeleteItem(list.id)}
                       />
-                     
 
-                      <img
+                      {/* <img
                         className="action-icons"
                         alt="favourite"
                         style={{
@@ -402,21 +501,46 @@ function NavBar(props) {
                           color: "#fff000",
                         }}
                         src={
-                          wishList.data.filter((item) => item.id === list.id).length > 0
+                          wishList.data.filter((item) => item.id === list.id)
+                            .length > 0
                             ? "https://image.flaticon.com/icons/png/512/4379/4379680.png"
                             : "https://image.flaticon.com/icons/png/512/4379/4379561.png"
                         }
-                      />
+                        onClick={() =>handleWishList(list.id)}
+                      /> */}
+
+        {wishList.data.filter((item) => item.id === list.id).length > 0 ? (
+            <Button
+              className="action-icons"
+              style={{ margin: "15px 15px" }}
+              variant="contained"
+              color="secondary"
+              onClick={() => handleWishList(list.id)}
+            >
+              {" "}
+              Remove from WishList
+            </Button>
+          ) : (
+            <Button
+              className="action-icons"
+              style={{ margin: "15px 15px" }}
+              variant="contained"
+              color="primary"
+              onClick={() => handleWishList(list.id)}
+            >
+              Add To WishList
+            </Button>
+          )}
                     </div>
                   </div>
-                </div>) : <div>No RESULT</div>
-            }
+                </div>
+              ))
+            ) : (
+              <div>No RESULT</div>
+            )}
           </DialogContent>
-         
         </Dialog>
       </div>
-   
-   
     </div>
   );
 }
@@ -467,12 +591,12 @@ const styles = {
     color: "#fff000",
   },
   appBar: {
-    position: 'relative',
+    position: "relative",
   },
   title: {
     marginLeft: 2,
     flex: 1,
-  }
+  },
 };
 
 export default NavBar;
