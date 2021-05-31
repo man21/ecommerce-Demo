@@ -8,11 +8,46 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
+import AppBar from '@material-ui/core/AppBar';
 
+import Toolbar from '@material-ui/core/Toolbar';
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
+import Typography from "@material-ui/core/Typography";
+
+import { useSelector } from "react-redux";
+
+
+import "../Products/ProductItem.css"
 function NavBar(props) {
-  const { products, setProducts } = props;
 
-  const [open, setOpen] = useState(false);
+   
+
+  const wishList = useSelector((state) => state.wishList);
+
+  const cart = useSelector((state) => state.cart);
+
+
+  // const { products, setProducts } = props;
+
+  const { products } = props;
+
+  const [openAddProduct, setOpenAddProduct] = useState(false);
+
+
+  const [openWishList, setOpenWishList] = useState(false);
+
+  const [openCart, setOpenCart] = useState(false);
+
+
+  // const [type, setType] = useState(null)
+
+  // const [open, setOpen] = useState({
+  //   addProduct: false,
+  //   openWishlist: false,
+  //   openCart: false
+  // });
+
 
   const [formData, setFormData] = useState({
     title: "",
@@ -20,12 +55,29 @@ function NavBar(props) {
     amount: 0,
   });
 
-  const handleClickOpen = () => {
-    setOpen(true);
+  const handleAddProductClickOpen = () => {
+    setOpenAddProduct(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleAddProductClose = () => {
+    setOpenAddProduct(false);
+  };
+
+  const handleOpenWishListClickOpen = () => {
+    setOpenWishList(true);
+  };
+
+  const handleOpenWishListClose = () => {
+    setOpenWishList(false);
+  };
+
+
+  const handleOpenCartClickOpen = () => {
+    setOpenCart(true);
+  };
+
+  const handleOpenCartListClose = () => {
+    setOpenCart(false);
   };
 
   const handleSubmitButton = () => {
@@ -39,14 +91,15 @@ function NavBar(props) {
     } else {
       var tempProduct = { ...products };
       tempProduct = [...products, { ...tempFormData, id: products.length + 1 }];
-      setProducts(tempProduct);
+
+      // setProducts(tempProduct);
 
       setFormData({
         title: "",
         quantity: 1,
         amount: 0,
       });
-      handleClose(false);
+      handleAddProductClose(false);
     }
   };
 
@@ -67,24 +120,75 @@ function NavBar(props) {
     setFormData(tempFormData);
   };
 
+
+  const handleIncreaseQuantity = (id) => {
+
+    console.log("HANDLE INCREASE QUANTITY ************")
+    // alert("Not working Now")
+    // const index = products.findIndex((x) => x.id === id);
+    // var dummy = [...products];
+    // dummy[index] = {
+    //   ...dummy[index],
+    //   quantity: dummy[index].quantity + 1,
+    //   amount: dummy[index].amount + 10,
+    // };
+    // setProducts(dummy);
+  };
+
+  const handleDecreaseQuantity = (id) => {
+
+    console.log("HANDLE DECREASE QUANTITY ************")
+
+    const index = products.findIndex((x) => x.id === id);
+    var dummy = [...products];
+    if (dummy[index].quantity === 1) return;
+    else {
+      dummy[index] = {
+        ...dummy[index],
+        quantity: dummy[index].quantity - 1,
+        amount: dummy[index].amount - 10,
+      };
+      // setProducts(dummy);
+    }
+  };
+
+  const handleDeleteItem = (id) => {
+    console.log("HANDLE DELETE QUANTITY ************")
+
+    const newArr = products.filter((x) => x.id !== id);
+    // setProducts(newArr);
+  };
+
+
   return (
     <div>
       <div style={styles.nav}>
-
         <Button
           style={{
             marginRight: "20px",
             color: "#ffffff",
             background: "#000000",
           }}
-          onClick={handleClickOpen}
+          onClick={handleAddProductClickOpen}
         >
-          FORM
+          Add New Product
         </Button>
 
         <div style={{ marginRight: "20px", color: "#ffffff" }}>
-          Total Amount:{" "}
-          {products.reduce((previous, current) => previous + current.amount, 0)}
+          <b style={{color: "#fff000"}}>Total Amount:</b>{" $  "}
+          {products.reduce((previous, current) => previous + current.price.current.value, 0)}
+        </div>
+
+        <div style={styles.ncartIconContainerav}>
+          <img
+            style={styles.cartIcon}
+            onClick={handleOpenWishListClickOpen}
+            alt="wishList"
+            src="https://image.flaticon.com/icons/png/512/4379/4379561.png"
+          />
+          <span style={styles.wishListCount}>
+            {wishList && wishList.data.length ? wishList.data.length : 0}
+          </span>
         </div>
 
         <div style={styles.ncartIconContainerav}>
@@ -92,27 +196,24 @@ function NavBar(props) {
             style={styles.cartIcon}
             alt="cartIcon"
             src="https://image.flaticon.com/icons/png/512/1170/1170576.png"
+            onClick={handleOpenCartClickOpen}
           />
           <span style={styles.cartCount}>
-            {products.reduce(
-              (previous, current) => previous + current.quantity,
-              0
-            )}
+            {cart.data.length}
           </span>
         </div>
       </div>
 
+      {/* ADD PRODUCT POPUP */}
       <div>
         <Dialog
-          open={open}
-          onClose={handleClose}
+          open={openAddProduct}
+          onClose={handleAddProductClose}
           aria-labelledby="form-dialog-title"
         >
           <DialogTitle id="form-dialog-title">Add Item</DialogTitle>
           <DialogContent>
-            <DialogContentText>
-              Add Product 
-            </DialogContentText>
+            <DialogContentText>Add Product</DialogContentText>
 
             <TextField
               margin="dense"
@@ -143,7 +244,7 @@ function NavBar(props) {
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose} color="primary">
+            <Button onClick={handleAddProductClose} color="primary">
               Cancel
             </Button>
             <Button onClick={handleSubmitButton} color="primary">
@@ -152,6 +253,170 @@ function NavBar(props) {
           </DialogActions>
         </Dialog>
       </div>
+
+      {/* Display WISHLIST */}
+      <div>
+        <Dialog
+          fullScreen
+          onClose={handleOpenWishListClose}
+          aria-labelledby="customized-dialog-title"
+          open={openWishList}
+        >
+
+          <AppBar className={styles.appBar}>
+            <Toolbar>
+              <IconButton edge="start" color="inherit" onClick={handleOpenWishListClose} aria-label="close">
+                <CloseIcon />
+              </IconButton>
+              <Typography variant="h6" className={styles.title}>wishList</Typography>
+              <Button autoFocus color="inherit" onClick={handleOpenWishListClose}>save</Button>
+
+              <Typography variant="h6" style={{marginRight:"1px"}} className={styles.title}><b style={{color:"#fff000"}}>Total Amount: </b> USD {wishList.data.reduce((a,b) =>a+b.price.current.value, 0)} </Typography>
+
+            </Toolbar>
+          </AppBar>
+          <DialogContent dividers style= {{marginTop: "50px"}}>
+            {
+              wishList.data.length > 0 ?
+                wishList.data.map(list => 
+                <div  key={list.id} style={{display: 'inline-block',margin: '20px 10px',borderStyle: 'solid',borderWidth: 'thin'}}>
+                  <div>
+                    <img style={{height: 110,width: 110,borderRadius: 4,alignItems: 'right',backgroundColor: " #ccc",margin: '5px auto',display: 'block',}} src={`https://${list.imageUrl}`} />
+                  </div>
+
+                  <div className="right-block">
+                    <div>
+                      <b>Title:</b> {list.name}
+                    </div>
+                    <div>
+                      <b>Amount: </b>
+                      {list.price.current.text}
+                    </div>
+
+                    <div className="cart-item-actions">
+                      <img
+                        className="action-icons"
+                        alt="addToCart"
+                        style={{ height: "24px", padding: "5px 5px" }}
+                        src="https://image.flaticon.com/icons/png/512/4379/4379578.png"
+                      />
+
+                      <img
+                        className="action-icons"
+                        alt="favourite"
+                        style={{
+                          height: "24px",
+                          padding: "5px 5px",
+                          color: "#fff000",
+                        }}
+                        src={
+                          wishList.data.filter((item) => item.id === list.id).length > 0
+                            ? "https://image.flaticon.com/icons/png/512/4379/4379680.png"
+                            : "https://image.flaticon.com/icons/png/512/4379/4379561.png"
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>) : <div>No RESULT</div>
+            }
+          </DialogContent>
+         
+        </Dialog>
+      </div>
+   
+
+    {/* Display CART */}
+    <div>
+        <Dialog
+          fullScreen
+          onClose={handleOpenCartListClose}
+          aria-labelledby="customized-dialog-title"
+          open={openCart}
+        >
+
+          <AppBar className={styles.appBar}>
+            <Toolbar>
+              <IconButton edge="start" color="inherit" onClick={handleOpenCartListClose} aria-label="close">
+                <CloseIcon />
+              </IconButton>
+              <Typography variant="h6" className={styles.title}>Cart</Typography>
+              <Button autoFocus color="inherit" onClick={handleOpenCartListClose}>save</Button>
+
+              <Typography variant="h6" style={{marginRight:"1px"}} className={styles.title}><b style={{color:"#fff000"}}>Total Amount: </b> USD {cart.data.reduce((a,b) =>a+b.price.current.value, 0)} </Typography>
+
+            </Toolbar>
+          </AppBar>
+          <DialogContent dividers style= {{marginTop: "50px"}}>
+            {
+              cart.data.length > 0 ?
+                cart.data.map(list => 
+                <div key={list.id} style={{display: 'inline-block',margin: '20px 10px',borderStyle: 'solid',borderWidth: 'thin'}}>
+                  <div>
+                    <img style={{height: 110,width: 110,borderRadius: 4,alignItems: 'right',backgroundColor: " #ccc",margin: '5px auto',display: 'block',}} src={`https://${list.imageUrl}`} />
+                  </div>
+
+                  <div className="right-block">
+                    <div>
+                      <b>Title:</b> {list.name}
+                    </div>
+                    <div>
+                      <b>Amount: </b>
+                      {list.price.current.text}
+                    </div>
+
+                    <div>
+                      <b>Qty:</b> 1
+                    </div>
+
+                    <div className="cart-item-actions">
+
+                      <img
+                        className="action-icons"
+                        alt="increase"
+                        style={{height: '24px', width: '24px', padding: "5px 5px"}}
+                        src="https://image.flaticon.com/icons/png/512/992/992651.png"
+                        onClick={handleIncreaseQuantity(list.id)}
+                      />
+                      <img
+                        className="action-icons"
+                        alt="decrease"
+                        style={{height: '24px', width: '24px', padding: "5px 5px"}}
+                        src="https://image.flaticon.com/icons/png/512/1828/1828906.png"
+                        onClick={handleDecreaseQuantity(list.id)}
+                      />
+                      <img
+                        className="action-icons"
+                        alt="delete"
+                        style={{height: '24px', width: '24px', padding: "5px 5px"}}
+                        src="https://image.flaticon.com/icons/png/512/3096/3096687.png"
+                        onClick={handleDeleteItem(list.id)}
+                      />
+                     
+
+                      <img
+                        className="action-icons"
+                        alt="favourite"
+                        style={{
+                          height: "24px",
+                          padding: "5px 5px",
+                          color: "#fff000",
+                        }}
+                        src={
+                          wishList.data.filter((item) => item.id === list.id).length > 0
+                            ? "https://image.flaticon.com/icons/png/512/4379/4379680.png"
+                            : "https://image.flaticon.com/icons/png/512/4379/4379561.png"
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>) : <div>No RESULT</div>
+            }
+          </DialogContent>
+         
+        </Dialog>
+      </div>
+   
+   
     </div>
   );
 }
@@ -181,6 +446,33 @@ const styles = {
     right: 0,
     top: 10,
   },
+
+  wishListCount: {
+    background: "yellow",
+    borderRadius: "50%",
+    padding: "4px 8px",
+    position: "absolute",
+    right: 50,
+    top: 10,
+  },
+
+  root: {
+    margin: 0,
+    padding: 2,
+  },
+  closeButton: {
+    position: "absolute",
+    right: 1,
+    top: 1,
+    color: "#fff000",
+  },
+  appBar: {
+    position: 'relative',
+  },
+  title: {
+    marginLeft: 2,
+    flex: 1,
+  }
 };
 
 export default NavBar;
