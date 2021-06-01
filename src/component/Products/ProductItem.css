@@ -1,8 +1,12 @@
 .cart-item{
     display: inline-block;
-    margin: 20px 10px;
-    border-style: solid;
-    border-width: thin;
+    margin-top: 10px;
+    margin-left:10px;
+    /* margin: 20px 10px; */
+    /* border-style: solid;
+    border-width: thin; */
+    box-shadow: 10px 6px 18px 0px rgba(176,176,176,0.75);
+
   }
   
   .cart-item .right-block{

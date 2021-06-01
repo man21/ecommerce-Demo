@@ -15,14 +15,13 @@ function ProductItem(props) {
   const { id, name, imageUrl, price } = props.product;
 
   return (
-    <div className="cart-item" style={{display: 'flex',  flexWrap: "wrap"
-  }}>
+    <div className="cart-item" style={{display: 'flex', flexGrow: 0,width: '48%',flexShrink: 1 }}>
       <div className="left-block">
         <img style={styles.image} src={`https://${imageUrl}`} />
       </div>
 
       <div className="right-block">
-        <div>
+        <div style={{marginTop: "10px"}}>
           <b>Title:</b> {name}
         </div>
         <div>
@@ -31,7 +30,7 @@ function ProductItem(props) {
         </div>
         <div className="cart-item-actions">
          
-          <img
+          {/* <img
             className="action-icons"
             alt="addToCart"
             style={{
@@ -41,7 +40,17 @@ function ProductItem(props) {
             }}
             src="https://image.flaticon.com/icons/png/512/4379/4379578.png"
             onClick={() => props.addProductInCart(id)}
-          />
+          /> */}
+
+            <Button
+              className="action-icons"
+              style={{ margin: "15px 15px" }}
+              variant="contained"
+              color="primary"
+              onClick={() => props.addProductInCart(id)}
+              >
+              Add to cart
+            </Button>
 
           {wishList.data.filter((item) => item.id === id).length > 0 ? (
             <Button

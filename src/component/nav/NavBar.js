@@ -25,24 +25,11 @@ function NavBar(props) {
 
   const cart = useSelector((state) => state.cart);
 
-  // const { products, setProducts } = props;
-
   const { products } = props;
 
   const [openAddProduct, setOpenAddProduct] = useState(false);
-
   const [openWishList, setOpenWishList] = useState(false);
-
   const [openCart, setOpenCart] = useState(false);
-
-  // const [type, setType] = useState(null)
-
-  // const [open, setOpen] = useState({
-  //   addProduct: false,
-  //   openWishlist: false,
-  //   openCart: false
-  // });
-
   const [formData, setFormData] = useState({
     title: "",
     quantity: 1,
@@ -160,25 +147,36 @@ function NavBar(props) {
     
   }
 
+  const handleAddProductInCart = (id) => {
+
+    const newDATA = wishList.data.filter((x) => x.id === id);
+
+    const checkProductInCart = cart.data.filter((x) => x.id === id);
+    if (checkProductInCart.length > 0) {
+      dispatch({
+        type: "UPDATE_ONE_CART",
+        payload: {
+          ...checkProductInCart[0],
+          quantity: checkProductInCart[0].quantity + 1,
+        },
+      });
+
+    } else {
+      dispatch({
+        type: "ADD_TO_CART",
+        payload: { ...newDATA[0], quantity: 1 },
+      });
+    }
+  };
+
   return (
-    <div>
+    <div >
       <div style={styles.nav}>
         <Button
-          style={{
-            marginRight: "20px",
-            color: "#ffffff",
-            background: "#000000",
-          }}
-          onClick={handleAddProductClickOpen}
-        >
+          style={{marginRight: "20px",color: "#ffffff", background: "#000000"}}
+          onClick={handleAddProductClickOpen}> 
           Add New Product
         </Button>
-
-        {/* <div style={{ marginRight: "20px", color: "#ffffff" }}>
-          <b style={{color: "#fff000"}}>Total Amount:</b>{" $  "}
-          {products.reduce((previous, current) => previous + current.price.current.value, 0)}
-        </div> */}
-
         <div style={styles.ncartIconContainerav}>
           <img
             style={styles.cartIcon}
@@ -291,16 +289,16 @@ function NavBar(props) {
               </Typography>
             </Toolbar>
           </AppBar>
-          <DialogContent dividers style={{ marginTop: "50px" }}>
+          <DialogContent dividers style={{ marginTop: "50px", display: 'flex', flexWrap: 'wrap',gap: '16px', flex: '0 0 auto'  }}>
             {wishList.data.length > 0 ? (
               wishList.data.map((list) => (
                 <div
                   key={list.id}
                   style={{
-                    display: "inline-block",
-                    margin: "20px 10px",
+                    margin: "20px 7px",
                     borderStyle: "solid",
                     borderWidth: "thin",
+                    display: 'flex', flexGrow: 0,width: '48%',flexShrink: 1
                   }}
                 >
                   <div>
@@ -320,7 +318,7 @@ function NavBar(props) {
                   </div>
 
                   <div className="right-block">
-                    <div>
+                    <div style={{marginTop: "10px"}}>
                       <b>Title:</b> {list.name}
                     </div>
                     <div>
@@ -329,17 +327,30 @@ function NavBar(props) {
                     </div>
 
                     <div className="cart-item-actions">
-                      <img
+                      {/* <img
                         className="action-icons"
                         alt="addToCart"
                         style={{ height: "24px", padding: "5px 5px" }}
                         src="https://image.flaticon.com/icons/png/512/4379/4379578.png"
-                      />
+                      /> */}
+
 
                       <Button
                         className="action-icons"
                         style={{ margin: "15px 15px" }}
                         variant="contained"
+                        color="primary"
+                        onClick={() => handleAddProductInCart(list.id)}
+                        >
+                        Add to cart
+                      </Button>
+
+                     
+
+                      <Button
+                        className="action-icons"
+                        style={{ margin: "15px 15px" }}
+                        variant="outlined"
                         color="secondary"
                         onClick={() =>
                           dispatch({
@@ -416,16 +427,18 @@ function NavBar(props) {
               </Typography>
             </Toolbar>
           </AppBar>
-          <DialogContent dividers style={{ marginTop: "50px" }}>
+          <DialogContent dividers style={{ marginTop: "50px", display: 'flex', flexWrap: 'wrap',gap: '16px', flex: '0 0 auto'  }}>
             {cart.data.length > 0 ? (
               cart.data.map((list) => (
                 <div
                   key={list.id}
                   style={{
-                    display: "inline-block",
-                    margin: "20px 10px",
+                    // display: "inline-block",
+                    // margin: "20px 10px",
+                    margin: "20px 7px",
                     borderStyle: "solid",
                     borderWidth: "thin",
+                    display: 'flex', flexGrow: 0,width: '48%',flexShrink: 1
                   }}
                 >
                   <div>
@@ -445,7 +458,7 @@ function NavBar(props) {
                   </div>
 
                   <div className="right-block">
-                    <div>
+                    <div style={{marginTop: "10px"}}>
                       <b>Title:</b> {list.name}
                     </div>
                     <div>
@@ -512,8 +525,8 @@ function NavBar(props) {
         {wishList.data.filter((item) => item.id === list.id).length > 0 ? (
             <Button
               className="action-icons"
-              style={{ margin: "15px 15px" }}
-              variant="contained"
+              style={{ marginTop: '-22px' }}
+              variant="outlined"
               color="secondary"
               onClick={() => handleWishList(list.id)}
             >
@@ -523,7 +536,7 @@ function NavBar(props) {
           ) : (
             <Button
               className="action-icons"
-              style={{ margin: "15px 15px" }}
+              style={{ marginTop: '-22px' }}
               variant="contained"
               color="primary"
               onClick={() => handleWishList(list.id)}

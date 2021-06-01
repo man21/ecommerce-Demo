@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import "./ProductItem.css";
 import ProductItem from "./ProductItem";
-
 import { useSelector, useDispatch } from "react-redux";
 
 function Cart(props) {
@@ -56,8 +55,8 @@ function Cart(props) {
           quantity: checkProductInCart[0].quantity + 1,
         },
       });
+
     } else {
-      // console.log({...newDATA[0], quantity: 1}, "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ")
       dispatch({
         type: "ADD_TO_CART",
         payload: { ...newDATA[0], quantity: 1 },
@@ -76,7 +75,7 @@ function Cart(props) {
     }
   };
   return (
-    <div>
+    <div style={{ display: 'flex', flexWrap: 'wrap',gap: '16px'}}>
       {products.data.length !== 0 ? (
         products.data.map((product) => {
           return (
